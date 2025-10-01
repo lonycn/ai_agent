@@ -1,0 +1,13 @@
+ai-gateway:
+  tenants:
+    default:
+      credentials:
+        access-key-id: YOUR_AK
+        access-key-secret: YOUR_SK
+      asr:
+        default-model-id: paraformer-v2
+        default-vocabulary-name: general
+        models:
+          meeting:
+            model-id: paraformer-meeting-v1
+            vocabulary-name: meeting-hotwords
