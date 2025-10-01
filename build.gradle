@@ -1,0 +1,100 @@
+plugins {
+    id 'java'
+    id 'io.spring.dependency-management' version '1.1.4'
+    id 'org.springframework.boot' version '3.2.5' apply false
+}
+
+group = 'com.aliyun.aigateway'
+version = '0.1.0-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(17)
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'io.spring.dependency-management'
+
+    group = rootProject.group
+    version = rootProject.version
+
+    java {
+        toolchain {
+            languageVersion = JavaLanguageVersion.of(17)
+        }
+    }
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    }
+
+    tasks.withType(Test).configureEach {
+        useJUnitPlatform()
+    }
+}
+
+project(':api-gateway') {
+    apply plugin: 'org.springframework.boot'
+
+    dependencies {
+        implementation project(':sdk-integrations')
+        implementation project(':audio-pipeline')
+        implementation project(':config-center')
+        implementation project(':observability')
+        implementation project(':security')
+
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+        implementation 'org.springframework.boot:spring-boot-starter-actuator'
+        implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+        runtimeOnly 'io.micrometer:micrometer-registry-prometheus'
+    }
+}
+
+project(':sdk-integrations') {
+    dependencies {
+        api project(':security')
+        implementation project(':config-center')
+        implementation 'org.springframework.boot:spring-boot-starter'
+        implementation 'com.aliyun:dashscope-sdk-java:2.11.0'
+        implementation 'com.aliyun:credentials-java:0.2.7'
+        implementation 'jakarta.validation:jakarta.validation-api:3.0.2'
+        implementation 'com.fasterxml.jackson.core:jackson-annotations'
+    }
+}
+
+project(':audio-pipeline') {
+    dependencies {
+        implementation 'org.springframework.boot:spring-boot-starter'
+        implementation 'org.bytedeco:ffmpeg-platform:6.0-1.5.10'
+    }
+}
+
+project(':config-center') {
+    dependencies {
+        implementation 'org.springframework.boot:spring-boot-starter'
+        implementation 'org.springframework.boot:spring-boot-configuration-processor'
+        annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    }
+}
+
+project(':observability') {
+    dependencies {
+        implementation 'org.springframework.boot:spring-boot-starter-actuator'
+        implementation 'io.micrometer:micrometer-tracing-bridge-brave'
+        implementation 'io.zipkin.reporter2:zipkin-reporter-brave'
+    }
+}
+
+project(':security') {
+    dependencies {
+        implementation 'org.springframework.boot:spring-boot-starter'
+        implementation 'com.aliyun:credentials-java:0.2.7'
+    }
+}
